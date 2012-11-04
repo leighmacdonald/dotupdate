@@ -38,6 +38,9 @@ def install(source_path=".", source_filter="*", dest_path="~/"):
     :rtype:
     """
     full_source_path = abspath(source_path)
+    if not exists(full_source_path):
+        err = "Source dotfiles path does not exist {0}, cannot continue!".format(full_source_path)
+        raise InvalidConfiguration(err)
     full_dest_path = abspath(expanduser(dest_path))
     filter_txt = "{0}/{1}".format(source_path, source_filter)
     potential_links = glob(filter_txt)

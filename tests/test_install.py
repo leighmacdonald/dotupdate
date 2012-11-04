@@ -2,7 +2,7 @@ import unittest
 from os import mkdir
 from os.path import exists, join, islink, lexists
 from shutil import rmtree
-from dotupdate import install
+from pydot import install, InvalidConfiguration
 
 class TestInstall(unittest.TestCase):
     source_root = './test_dotfiles'
@@ -30,6 +30,10 @@ class TestInstall(unittest.TestCase):
                      join(self.dest_root, '.dir1', 'file2.test'),
                      join(self.dest_root, '.dir2', 'subdir1')]:
             self.assertTrue(lexists(path))
+
+    def test_no_link_install(self):
+        with self.assertRaises(InvalidConfiguration):
+            install(source_path=join(self.dest_root, '.dir1'), dest_path=self.dest_root)
 
 if __name__ == '__main__':
     unittest.main()
