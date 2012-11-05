@@ -2,7 +2,7 @@ import unittest
 from os import mkdir
 from os.path import exists, join, lexists
 from shutil import rmtree
-from pydot import install, InvalidConfiguration
+from dotupdate import install, InvalidConfiguration
 
 class TestInstall(unittest.TestCase):
     source_root = './test_dotfiles'
