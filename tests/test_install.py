@@ -1,6 +1,6 @@
 import unittest
 from os import mkdir
-from os.path import exists, join, islink, lexists
+from os.path import exists, join, lexists
 from shutil import rmtree
 from pydot import install, InvalidConfiguration
 

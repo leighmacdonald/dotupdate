@@ -1,21 +1,22 @@
 from glob import glob
-from os.path import isfile, isdir, islink, abspath, lexists, exists, join, expanduser
+from os.path import abspath, lexists, exists, join, expanduser, dirname
 from os import symlink
 
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser as ConfigParser
 
 class InvalidConfiguration(Exception):
     """Used when a user configures bad paths"""
 
-
 class LinkExists(OSError):
     pass
-
 
 class FileExists(OSError):
     pass
 
-
-def install(source_path=".", source_filter="*", dest_path="~/"):
+def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry_run=True):
     """ Install a set of files from the specified source path into the dest_path.
 
     An example of the transformation that will take place:
@@ -55,17 +56,28 @@ def install(source_path=".", source_filter="*", dest_path="~/"):
         dest_link = join(full_dest_path, '.' + link)
         source_link = join(full_source_path, link)
         try:
-            if exists(dest_link):
-                raise FileExists("File exists already {0}".format(dest_link))
             if lexists(dest_link):
                 raise LinkExists("Link exists {0}".format(dest_link))
+            if exists(dest_link):
+
+                raise FileExists("File exists already {0}".format(dest_link))
         except FileExists:
             pass
         except LinkExists:
             pass
 
-        try:
-            symlink(source_link, dest_link)
-        except OSError as err:
-            print(err)
+        if dry_run:
+            print("DRY RUN: ln -s {0} {1}".format(source_link, dest_link))
+        else:
+            try:
+                symlink(source_link, dest_link)
+            except OSError as err:
+                print(err)
 
+config = None
+if not config:
+   config = ConfigParser()
+   config_file = join(dirname(dirname(__file__)), 'config.ini')
+   if exists(config_file):
+       print("Reading config file {0}".format(config_file))
+       config.read(config_file)
