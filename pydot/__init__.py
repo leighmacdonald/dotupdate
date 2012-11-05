@@ -18,17 +18,22 @@ class LinkExists(OSError):
 class FileExists(OSError):
     pass
 
-def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry_run=True):
+def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry_run=True,
+            ignore_list=None):
     """ Install a set of files from the specified source path into the dest_path.
 
     An example of the transformation that will take place:
 
+    initial_path: ~/
+                  ~/.bashrc (v0)
+
     source path : ./my_dot_files
-                  ./my_dot_files/bashrc
-                  ./my_dot_files/vim
+                  ./my_dot_files/bashrc (v1)
+                  ./my_dot_files/vim (v0)
+
     dest_path   : ~/
-                  ~/.bashrc
-                  ~/.vim
+                  ~/.bashrc (v1)
+                  ~/.vim (v0)
 
 
     :param source_path:
@@ -52,9 +57,17 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
         raise InvalidConfiguration(error_msg)
 
     for link in potential_links:
+
+        cut_size = len(source_path)
         if link[0:2] == "./":
             link = link[2:]
-        link = link[len(source_path) - 1:]
+            cut_size -= 2
+        link = link[cut_size:]
+        if link[0] == "/":
+            link = link[1:]
+        if link in ignore_list:
+            log.debug("Skipped ignored file {0}".format(link))
+            continue
         dest_link = join(full_dest_path, '.' + link)
         source_link = join(full_source_path, link)
         try:
@@ -69,7 +82,7 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
             pass
 
         if dry_run:
-            log.info("DRY RUN: ln -s {0} {1}".format(source_link, dest_link))
+            log.info("dryrun :: ln -s {0} {1}".format(source_link, dest_link))
         else:
             try:
                 symlink(source_link, dest_link)

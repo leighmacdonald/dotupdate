@@ -25,7 +25,7 @@ class TestInstall(unittest.TestCase):
         rmtree(self.dest_root)
 
     def test_install(self):
-        install(self.source_root, dest_path=self.dest_root)
+        install(self.source_root, dest_path=self.dest_root, dry_run=False)
         for path in [join(self.dest_root, '.file.test'),
                      join(self.dest_root, '.dir1', 'file2.test'),
                      join(self.dest_root, '.dir2', 'subdir1')]:
