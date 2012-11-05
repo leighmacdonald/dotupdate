@@ -1,7 +1,9 @@
 from glob import glob
 from os.path import abspath, lexists, exists, join, expanduser, dirname
 from os import symlink
+from logging import getLogger
 
+log = getLogger('pydot')
 try:
     from configparser import ConfigParser
 except ImportError:
@@ -67,17 +69,19 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
             pass
 
         if dry_run:
-            print("DRY RUN: ln -s {0} {1}".format(source_link, dest_link))
+            log.info("DRY RUN: ln -s {0} {1}".format(source_link, dest_link))
         else:
             try:
                 symlink(source_link, dest_link)
             except OSError as err:
-                print(err)
+                log.exception(err)
 
 config = None
 if not config:
    config = ConfigParser()
    config_file = join(dirname(dirname(__file__)), 'config.ini')
    if exists(config_file):
-       print("Reading config file {0}".format(config_file))
-       config.read(config_file)
+       log.debug("Reading config file {0}".format(config_file))
+       read_ok = config.read(config_file)
+       if not read_ok:
+           log.warn("Failed to read configuration file {0}".format(config_file))

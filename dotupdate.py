@@ -1,6 +1,10 @@
 #!/usr/bin/python
 from argparse import ArgumentParser
+from logging import getLogger, basicConfig, DEBUG, INFO
+
 from pydot import install, config, InvalidConfiguration
+
+log = getLogger('dotupdate')
 
 options = {
     '-s --source': {
@@ -22,6 +26,10 @@ options = {
     '-t --test' : {
         'help'   : "Do a dry run printing what would have taken place",
         'action' : "store_true"
+    },
+    '--debug' : {
+        'help' : "Enable debug output level",
+        "action" : "store_true"
     }
 }
 
@@ -50,10 +58,12 @@ def get_args():
 
 def main():
     args = get_args()
+    log_level = DEBUG if args['debug'] else INFO
+    basicConfig(level=log_level, format=":: %(name)s :: %(message)s")
     try:
         install(source_path=args['source'], dest_path=args['dest'], dry_run=args['test'])
     except InvalidConfiguration as err:
-        print(err)
+        log.exception(err)
 
 if __name__ == "__main__":
     main()
