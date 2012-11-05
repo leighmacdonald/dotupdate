@@ -38,7 +38,7 @@ options = {
     }
 }
 
-def get_args():
+def parse_args():
     """ Parse the options from the config file if they are available. Then parse
     the command line options, which will override any options also defined in the
     configuration file
@@ -77,7 +77,7 @@ def main():
     :return:
     :rtype:
     """
-    args = get_args()
+    args = parse_args()
     log_level = DEBUG if args['debug'] else INFO
     basicConfig(level=log_level, format=":: %(name)s :: %(message)s")
     ret_val = 1

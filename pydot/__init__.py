@@ -3,11 +3,13 @@ from os.path import abspath, lexists, exists, join, expanduser, dirname
 from os import symlink
 from logging import getLogger
 
-log = getLogger('pydot')
 try:
     from configparser import ConfigParser
 except ImportError:
+    #noinspection PyUnresolvedReferences
     from ConfigParser import SafeConfigParser as ConfigParser
+
+log = getLogger('pydot')
 
 class InvalidConfiguration(Exception):
     """Used when a user configures bad paths"""
@@ -45,10 +47,13 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
     :return:
     :rtype:
     """
-    full_source_path = abspath(source_path)
+    full_source_path = abspath(expanduser(source_path))
     if not exists(full_source_path):
         err = "Source dotfiles path does not exist {0}, cannot continue!".format(full_source_path)
         raise InvalidConfiguration(err)
+    dest_path = expanduser(dest_path)
+    if not exists(dest_path):
+        raise InvalidConfiguration("Dest path does not exist {0}".format(dest_path))
     full_dest_path = abspath(expanduser(dest_path))
     filter_txt = "{0}/{1}".format(source_path, source_filter)
     potential_links = glob(filter_txt)
@@ -77,17 +82,17 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
 
                 raise FileExists("File exists already {0}".format(dest_link))
         except FileExists:
-            pass
+            log.warn("File already exists {0}".format(dest_link))
         except LinkExists:
-            pass
-
-        if dry_run:
-            log.info("dryrun :: ln -s {0} {1}".format(source_link, dest_link))
+            log.warn("Symlink already exists {0}".format(dest_link))
         else:
-            try:
-                symlink(source_link, dest_link)
-            except OSError as err:
-                log.exception(err)
+            if dry_run:
+                log.info("dryrun :: ln -s {0} {1}".format(source_link, dest_link))
+            else:
+                try:
+                    symlink(source_link, dest_link)
+                except OSError as err:
+                    log.exception(err)
 
 config = None
 if not config:
