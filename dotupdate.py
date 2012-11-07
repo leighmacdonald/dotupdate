@@ -11,6 +11,13 @@ except ImportError:
     #noinspection PyUnresolvedReferences
     from ConfigParser import SafeConfigParser as ConfigParser
 
+try:
+    from argparse import ArgumentParser
+
+    parser = True
+except ImportError:
+    parser = False
+
 log = getLogger('dotupdate')
 
 class InvalidConfiguration(Exception):
@@ -149,9 +156,6 @@ def parse_args():
     :rtype: dict
     """
     # Parse config file options
-    arg_parser = ArgumentParser(description="Utility for managing dotfiles")
-    for option_name, args in options.items():
-        arg_parser.add_argument(*option_name.split(' '), **args)
     args = dict()
     config_opts = config.items('general')
     bool_opts = ['backup', 'test']
@@ -162,14 +166,18 @@ def parse_args():
     for key in list_opts:
         args[key] = filter(None, config.get('general', key).split(','))
 
-    # Parse and merge command line options
-    cli_args = arg_parser.parse_args().__dict__
-    for key in filter(lambda k: k not in list_opts, cli_args.keys()):
-        if cli_args[key]:
-            args[key] = cli_args[key]
-    for key in list_opts:
-        if cli_args[key]:
-            args[key] = filter(None, cli_args[key].split(','))
+    if parser:
+        arg_parser = ArgumentParser(description="Utility for managing dotfiles")
+        for option_name, args in options.items():
+            arg_parser.add_argument(*option_name.split(' '), **args)
+            # Parse and merge command line options
+        cli_args = arg_parser.parse_args().__dict__
+        for key in filter(lambda k: k not in list_opts, cli_args.keys()):
+            if cli_args[key]:
+                args[key] = cli_args[key]
+        for key in list_opts:
+            if cli_args[key]:
+                args[key] = filter(None, cli_args[key].split(','))
     return args
 
 
