@@ -27,3 +27,4 @@ pip-log.txt
 .idea
 dotfiles
 config.ini
+!bin/*
