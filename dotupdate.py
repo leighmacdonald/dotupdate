@@ -186,9 +186,10 @@ def main():
     try:
         install(source_path=args['source'], dest_path=args['dest'], dry_run=args['test'],
             ignore_list=args['ignore'])
-        ret_val = 0
     except InvalidConfiguration as err:
         log.error(err)
+    else:
+        ret_val = 0
     finally:
         return ret_val
 
