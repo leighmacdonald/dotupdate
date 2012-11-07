@@ -1,5 +1,4 @@
 #!/usr/bin/python
-from argparse import ArgumentParser
 from logging import getLogger, basicConfig, DEBUG, INFO
 from glob import glob
 from os.path import abspath, lexists, exists, join, expanduser, dirname
