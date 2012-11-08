@@ -12,7 +12,6 @@ except ImportError:
 
 try:
     from argparse import ArgumentParser
-
     parser = True
 except ImportError:
     parser = False
@@ -106,12 +105,14 @@ def install(source_path=".", source_filter="*", dest_path="~/", backup=True, dry
 config = None
 if not config:
     config = ConfigParser()
-    config_file = join(dirname(dirname(__file__)), 'config.ini')
+    config_file = join(dirname(__file__), 'config.ini')
     if exists(config_file):
         log.debug("Reading config file {0}".format(config_file))
         read_ok = config.read(config_file)
         if not read_ok:
             log.warn("Failed to read configuration file {0}".format(config_file))
+    else:
+        log.warn("Failed to find config file at {0}".format(config_file))
 
 options = {
     '-s --source': {
@@ -167,8 +168,8 @@ def parse_args():
 
     if parser:
         arg_parser = ArgumentParser(description="Utility for managing dotfiles")
-        for option_name, args in options.items():
-            arg_parser.add_argument(*option_name.split(' '), **args)
+        for option_name, cliargs in options.items():
+            arg_parser.add_argument(*option_name.split(' '), **cliargs)
             # Parse and merge command line options
         cli_args = arg_parser.parse_args().__dict__
         for key in filter(lambda k: k not in list_opts, cli_args.keys()):
