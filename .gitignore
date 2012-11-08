@@ -28,3 +28,4 @@ pip-log.txt
 dotfiles
 config.ini
 !bin/*
+tests/test_dotfiles
