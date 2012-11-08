@@ -168,8 +168,8 @@ def parse_args():
 
     if parser:
         arg_parser = ArgumentParser(description="Utility for managing dotfiles")
-        for option_name, cliargs in options.items():
-            arg_parser.add_argument(*option_name.split(' '), **cliargs)
+        for option_name, cli_args in options.items():
+            arg_parser.add_argument(*option_name.split(' '), **cli_args)
             # Parse and merge command line options
         cli_args = arg_parser.parse_args().__dict__
         for key in filter(lambda k: k not in list_opts, cli_args.keys()):
